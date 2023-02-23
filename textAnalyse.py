@@ -25,8 +25,9 @@ def perplexity(num_topics, corpus, dic):
 
 
 def perplex(corpus, dic, num_topics):
+    # Calculate perplexity for different topic num
     x = range(1, num_topics+1)
-    y = [perplexity(i, corpus, dic) for i in x]  # 如果想用困惑度就选这个
+    y = [perplexity(i, corpus, dic) for i in x]
 
     plt.plot(x, y)
     plt.xlabel('topic num')

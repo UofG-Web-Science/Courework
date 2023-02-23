@@ -11,7 +11,7 @@ def prepModel(texts, num_topics):
     temp = dic[0]
     lda = models.LdaModel(corpus=corpus, id2word=dic.id2token, num_topics=num_topics, iterations=400, chunksize=2262,
                           passes=40)
-    topic_list = lda.print_topics(num_topics=3, num_words=10)
+    topic_list = lda.print_topics(num_topics=num_topics, num_words=10)
     for topic in topic_list:
         print(topic)
     return corpus, dic, lda
@@ -24,8 +24,8 @@ def perplexity(num_topics, corpus, dic):
     return ldaModel.log_perplexity(corpus)
 
 
-def perplex(corpus, dic):
-    x = range(1, 5)
+def perplex(corpus, dic, num_topics):
+    x = range(1, num_topics+1)
     y = [perplexity(i, corpus, dic) for i in x]  # 如果想用困惑度就选这个
 
     plt.plot(x, y)
@@ -39,7 +39,7 @@ def perplex(corpus, dic):
 
 def textAnalyse(texts, num_topics, resultPath):
     corpus, dic, lda = prepModel(texts, num_topics)
-    # perplex(corpus, dic)
+    # perplex(corpus, dic, num_topics)
 
     data = pyLDAvis.gensim.prepare(lda, corpus, dic)
     pyLDAvis.save_html(data, resultPath)

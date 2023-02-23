@@ -85,13 +85,35 @@ def textPreProcess(filePath, name, textStorPath):
         column = []
         with open(filePath, 'r', encoding="utf-8") as csvfile:
             reader = csv.reader(csvfile)
-            for i, row in enumerate(reader):
-                if i == 0:
-                    continue
-                if name == SingleT:
-                    column.append(row[2])
-                elif name == GroupedT:
-                    column.append(row[3])
+            groupedTweets = ""
+            if name == SingleT:
+                for i, row in enumerate(reader):
+                    if i == 0:
+                        continue
+                    if float(row[3]) < 0.45 or float(row[4]) < 0:
+                        continue
+                    else:
+                        column.append(row[2])
+            elif name == GroupedT:
+                rowNo = '0'
+                for i, row in enumerate(reader):
+                    if i == 0:
+                        continue
+                    if float(row[4]) < 0.45 or float(row[5]) < 0:
+                        continue
+                    else:
+                        if row[0] == rowNo:
+                            groupedTweets = groupedTweets + " " + row[3]
+                        elif row[0] != rowNo:
+                            if i == 9968:
+                                if groupedTweets != '':
+                                    column.append(groupedTweets)
+                                column.append(row[3])
+                                break
+                            if groupedTweets != '':
+                                column.append(groupedTweets)
+                            groupedTweets = row[3]
+                            rowNo = row[0]
         texts = calc_representation(column)
         textStor(textStorPath, texts)
         return texts

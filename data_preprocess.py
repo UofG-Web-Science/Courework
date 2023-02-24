@@ -1,10 +1,11 @@
-import csv
 import math
 import string
-import util
-import os
 
-stop_word_file_path = "data/stopwordFile.txt"
+import constant
+import util
+from constant import DataType
+
+stop_word_file_path = constant.stop_word_file_path
 
 
 def do(file_path, name, output_path):
@@ -18,7 +19,7 @@ def do(file_path, name, output_path):
 def read_data(file_path, data_type):
     rows = util.read_csv(file_path)
     match data_type:
-        case "t":
+        case DataType.single:
             texts = []
             for i, row in enumerate(rows):
                 # Skip the header
@@ -27,7 +28,7 @@ def read_data(file_path, data_type):
                 if float(row[3]) < 0.45 or float(row[4]) < 0:
                     continue
                 texts.append(row[2])
-        case "groupedT":
+        case DataType.grouped:
             grouped_texts = {}
             for i, row in enumerate(rows):
                 # Skip the header
@@ -82,6 +83,8 @@ def clean_token(token, stop_words):
     if len(token) == 0:
         return ''
     # Exclude #, @, $
+    if '@' == token or '#' == token or '$' == token:
+        return ''
     if token.startswith('#') or token.startswith('@') or token.startswith('$'):
         token = token.replace(":", "")
         token = token.replace(".", "")
@@ -99,3 +102,27 @@ def clean_token(token, stop_words):
         return ''
 
     return token
+
+
+def statistical_data(token_texts):
+    min_len = math.inf
+    max_len = 0
+    total_len = 0
+    total_len_with_less_10_token = 0
+
+    for token_text in token_texts:
+        text_len = len(token_text)
+        if text_len > max_len:
+            max_len = text_len
+        if text_len < min_len:
+            min_len = text_len
+        if text_len < 10:
+            total_len_with_less_10_token += 1
+        total_len += text_len
+    ave_len = (float(total_len) / len(token_texts))
+
+    print("Total length: ", len(token_texts))
+    print("Max length: ", max_len)
+    print("Min length: ", min_len)
+    print("Average length: ", ave_len)
+    print("Total length of text with less than 10 tokens: ", total_len_with_less_10_token)

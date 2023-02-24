@@ -1,71 +1,66 @@
-import math
-
-from gensim import corpora, models
 import matplotlib.pyplot as plt
 import pyLDAvis.gensim
+from gensim import corpora, models
+
+import constant
+
+no_below_threshold = constant.no_below_threshold
+no_above_threshold = constant.no_above_threshold
+iteration_num = constant.iteration_num
+chunk_size = constant.chunk_size
+pass_num = constant.pass_num
 
 
-def prepModel(texts, num_topics):
-    dic = corpora.Dictionary(texts)
-    dic.filter_extremes(no_below=10, no_above=0.8)
-    corpus = [dic.doc2bow(text) for text in texts]
+def do(token_texts, topic_num):
+    dic, corpus = convert_text(token_texts)
+    topic_model = modeling_topic(dic, corpus, topic_num)
+
+    return topic_model, corpus, dic
+
+
+def modeling_topic(dic, corpus, topic_num):
+    topic_model = models.LdaModel(corpus=corpus, id2word=dic.id2token, num_topics=topic_num, iterations=iteration_num,
+                                  chunksize=chunk_size,
+                                  passes=pass_num)
+
+    return topic_model
+
+
+def convert_text(token_texts):
+    dic = corpora.Dictionary(token_texts)
+    # Filter out words with too low frequency or too high frequency
+    dic.filter_extremes(no_below=no_below_threshold, no_above=no_above_threshold)
+    corpus = [dic.doc2bow(text) for text in token_texts]
     # activate dic
     temp = dic[0]
-    lda = models.LdaModel(corpus=corpus, id2word=dic.id2token, num_topics=num_topics, iterations=400, chunksize=2262,
-                          passes=40)
-    topic_list = lda.print_topics(num_topics=num_topics, num_words=10)
-    for topic in topic_list:
+    return dic, corpus
+
+
+def statistical_topic(lda_model, topic_num, word_num):
+    topics = lda_model.show_topics(num_topics=topic_num, num_words=word_num, formatted=False)
+    for topic in topics:
         print(topic)
-    return corpus, dic, lda
 
 
-def perplexity(num_topics, corpus, dic):
-    ldaModel = models.LdaModel(corpus, num_topics=num_topics, id2word=dic, passes=30)
-    print(ldaModel.print_topics(num_topics=num_topics, num_words=15))
-    print(ldaModel.log_perplexity(corpus))
-    return ldaModel.log_perplexity(corpus)
+def statistical_perplexity(dic, corpus, topic_num):
+    perplexity = []
+    for i in range(1, topic_num + 1):
+        lda_model = modeling_topic(dic, corpus, i)
+        perplexity.append(lda_model.log_perplexity(corpus))
 
-
-def perplex(corpus, dic, num_topics):
-    x = range(1, num_topics+1)
-    y = [perplexity(i, corpus, dic) for i in x]
-
-    plt.plot(x, y)
-    plt.xlabel('topic num')
-    plt.ylabel('coherence')
-    plt.rcParams['font.sans-serif'] = ['SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
-    plt.title('topic-perplexity')
+    x = range(1, topic_num + 1)
+    plt.plot(x, perplexity)
+    plt.xlabel('Topic Number')
+    plt.ylabel('Perplexity')
     plt.show()
 
 
-def textAnalyse(texts, num_topics, resultPath):
-    corpus, dic, lda = prepModel(texts, num_topics)
-    # perplex(corpus, dic, num_topics)
-
-    data = pyLDAvis.gensim.prepare(lda, corpus, dic)
-    pyLDAvis.save_html(data, resultPath)
+def statistical_token_freq(dic):
+    token_freq = sorted(dic.cfs.items(), key=lambda x: x[1], reverse=False)
+    for (token_id, num) in token_freq:
+        print(dic.get(token_id), num)
 
 
-def statistical_data(token_texts):
-    min_len = math.inf
-    max_len = 0
-    total_len = 0
-    total_len_with_less_10_token = 0
-
-    for token_text in token_texts:
-        text_len = len(token_text)
-        if text_len > max_len:
-            max_len = text_len
-        if text_len < min_len:
-            min_len = text_len
-        if text_len < 10:
-            total_len_with_less_10_token += 1
-        total_len += text_len
-    ave_len = (float(total_len) / len(token_texts))
-
-    print("Total length: ", len(token_texts))
-    print("Max length: ", max_len)
-    print("Min length: ", min_len)
-    print("Average length: ", ave_len)
-    print("Total length of text with less than 10 tokens: ", total_len_with_less_10_token)
+def visualize_result(topic_model, corpus, dic, result_file_path):
+    data = pyLDAvis.gensim.prepare(topic_model, corpus, dic)
+    pyLDAvis.save_html(data, result_file_path)

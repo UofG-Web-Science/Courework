@@ -1,5 +1,5 @@
-import textAnalyse
-import textPreprocess
+import text_analysis
+import text_preprocess
 
 
 if __name__ == '__main__':
@@ -12,6 +12,6 @@ if __name__ == '__main__':
     textStorPath = './results/' + name + 'weetsTexts.txt'
     resultPath = './results/' + str(num_topics) + 'topic-' + name + 'weets.html'
 
-    texts = textPreprocess.textPreProcess(filePath, name, textStorPath)
+    texts = text_preprocess.textPreProcess(filePath, name, textStorPath)
     # textPreprocess.textProperty(texts)
-    textAnalyse.textAnalyse(texts, num_topics, resultPath)
+    text_analysis.textAnalyse(texts, num_topics, resultPath)

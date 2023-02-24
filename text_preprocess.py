@@ -1,20 +1,7 @@
 import csv
 import string
-
-
-def load_txt(file_path):
-    lines = []
-    with open(file_path, 'r', encoding='UTF-8') as f:
-        for line in f.readlines():
-            # Remove blank space
-            if '\n' == line:
-                continue
-            # Remove line break
-            line = line.strip('\n')
-            lines.append(line)
-
-    return lines
-
+import util
+import os
 
 def clean_text(text):
     for ch in text:
@@ -52,7 +39,7 @@ def clean_token(token, stop_words):
 def calc_representation(texts):
     # Load stop words
     stop_word_file_path = "./data/stopwordFile.txt"
-    stop_words = load_txt(stop_word_file_path)
+    stop_words = util.load_txt(stop_word_file_path)
     tokenList = []
     for text in texts:
         # Clean text
@@ -69,54 +56,48 @@ def calc_representation(texts):
     return tokenList
 
 
-def textStor(filePath, texts):
-    with open(filePath, 'w') as f:
-        f.write(str(texts))
-
-
-def textPreProcess(filePath, name, textStorPath):
-    try:
-        with open(textStorPath, 'r', encoding="utf-8") as f:
-            texts = eval((f.readlines())[0])
+def textPreProcess(file_path, name, output_path):
+    if os.path.exists(output_path):
+        # TODO Load list from file
+        texts = util.load_txt(output_path)
         return texts
-    except IOError:
-        GroupedT = 'groupedT'
-        SingleT = 't'
-        column = []
-        with open(filePath, 'r', encoding="utf-8") as csvfile:
-            reader = csv.reader(csvfile)
-            groupedTweets = ""
-            if name == SingleT:
+
+    texts = load_data(file_path, name)
+    texts = calc_representation(texts)
+    util.write_text(output_path, texts)
+
+    return texts
+
+
+def load_data(file_path, data_type):
+    with open(file_path, 'r', encoding="utf-8") as csvfile:
+        reader = csv.reader(csvfile)
+        match data_type:
+            case "t":
+                texts = []
                 for i, row in enumerate(reader):
+                    # Skip the header
                     if i == 0:
                         continue
                     if float(row[3]) < 0.45 or float(row[4]) < 0:
                         continue
-                    else:
-                        column.append(row[2])
-            elif name == GroupedT:
-                rowNo = '0'
+                    texts.append(row[2])
+            case "groupedT":
+                grouped_texts = {}
                 for i, row in enumerate(reader):
+                    # Skip the header
                     if i == 0:
                         continue
+                    # Skip low quality text by qSocre < 0.45 or nScore < 0
                     if float(row[4]) < 0.45 or float(row[5]) < 0:
                         continue
-                    else:
-                        if row[0] == rowNo:
-                            groupedTweets = groupedTweets + " " + row[3]
-                        elif row[0] != rowNo:
-                            if i == 9968:
-                                if groupedTweets != '':
-                                    column.append(groupedTweets)
-                                column.append(row[3])
-                                break
-                            if groupedTweets != '':
-                                column.append(groupedTweets)
-                            groupedTweets = row[3]
-                            rowNo = row[0]
-        texts = calc_representation(column)
-        textStor(textStorPath, texts)
-        return texts
+                    group_id = row[0]
+                    grouped_text = grouped_texts.get(group_id, "")
+                    grouped_text = grouped_text + " " + row[3]
+                    grouped_texts[group_id] = grouped_text
+                texts = list(grouped_texts.values())
+
+    return texts
 
 
 def textProperty(texts):

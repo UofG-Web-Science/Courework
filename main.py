@@ -1,5 +1,7 @@
 import text_analysis
-import text_preprocess
+import data_preprocess
+import os
+import util
 
 
 if __name__ == '__main__':
@@ -8,10 +10,17 @@ if __name__ == '__main__':
     name = GroupedT
     num_topics = 5
 
-    filePath = './data/' + name + 'weets.csv'
-    textStorPath = './results/' + name + 'weetsTexts.txt'
-    resultPath = './results/' + str(num_topics) + 'topic-' + name + 'weets.html'
+    filePath = 'data/' + name + 'weets.csv'
+    preprocess_output_path = 'result/' + name + 'weetsTexts.txt'
+    resultPath = 'result/' + str(num_topics) + 'topic-' + name + 'weets.html'
 
-    texts = text_preprocess.textPreProcess(filePath, name, textStorPath)
+    if os.path.exists(preprocess_output_path):
+        # Read list from file
+        lines = util.read_txt(preprocess_output_path)
+        texts = []
+        for line in lines:
+            texts.append(eval(line))
+    else:
+        texts = data_preprocess.do(filePath, name, preprocess_output_path)
     # textPreprocess.textProperty(texts)
     text_analysis.textAnalyse(texts, num_topics, resultPath)

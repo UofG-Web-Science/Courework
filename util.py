@@ -22,6 +22,9 @@ def write_text(file_path, lines):
 
 
 def read_csv(file_path):
+    rows = []
     with open(file_path, 'r', encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
-    return reader
+        for row in reader:
+            rows.append(row)
+    return rows

@@ -1,22 +1,31 @@
 from enum import Enum
 
 
+class DataParam:
+    def __init__(self, data_type, data_file_path, no_below_threshold, no_above_threshold, iteration_num, chunk_size,
+                 pass_num, coherence_type, topic_num):
+        self.topic_num = topic_num
+        self.coherence_type = coherence_type
+        self.pass_num = pass_num
+        self.chunk_size = chunk_size
+        self.iteration_num = iteration_num
+        self.no_above_threshold = no_above_threshold
+        self.no_below_threshold = no_below_threshold
+        self.preprocess_file_path = './result/' + data_type.name + "_tweets-preprocessed.txt"
+        self.data_type = data_type
+        self.data_file_path = data_file_path
+
+
 class DataType(Enum):
     grouped = "groupedT"
     single = "t"
 
 
-data_type = DataType.grouped
-topic_num = 10
-# File path
-data_file_path = './data/' + data_type.value + 'weets.csv'
-preprocess_file_path = './result/' + data_type.value + 'weetsTexts.txt'
-result_file_path = './result/' + str(topic_num) + 'topic-' + data_type.value + 'weets.html'
 stop_word_file_path = "data/stopwordFile.txt"
-# IDA model parameter
-no_below_threshold = 5
-# no_above_threshold is useless
-no_above_threshold = 0.8
-iteration_num = 400
-chunk_size = 1000
-pass_num = 10
+#
+topic_max_num = 8
+
+single_param = DataParam(DataType.single, "data/tweets.csv", 10, 0.1, 400, 70, 20, 'u_mass', 3)
+group_param = DataParam(DataType.grouped, "data/groupedTweets.csv", 5, 0.4, 400, 460, 20, 'c_v', 5)
+
+data_param = group_param

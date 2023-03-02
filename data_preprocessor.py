@@ -6,10 +6,11 @@ import util
 from constant import DataType
 
 stop_word_file_path = constant.stop_word_file_path
+data_param = constant.data_param
 
 
-def do(file_path, name, output_path):
-    texts = read_data(file_path, name)
+def process(file_path, output_path, data_type):
+    texts = read_data(file_path, data_type)
     token_texts = integrate_data(texts)
     util.write_text(output_path, token_texts)
 
@@ -108,7 +109,6 @@ def statistical_data(token_texts):
     min_len = math.inf
     max_len = 0
     total_len = 0
-    total_len_with_less_10_token = 0
 
     for token_text in token_texts:
         text_len = len(token_text)
@@ -116,8 +116,6 @@ def statistical_data(token_texts):
             max_len = text_len
         if text_len < min_len:
             min_len = text_len
-        if text_len < 10:
-            total_len_with_less_10_token += 1
         total_len += text_len
     ave_len = (float(total_len) / len(token_texts))
 
@@ -125,4 +123,3 @@ def statistical_data(token_texts):
     print("Max length: ", max_len)
     print("Min length: ", min_len)
     print("Average length: ", ave_len)
-    print("Total length of text with less than 10 tokens: ", total_len_with_less_10_token)

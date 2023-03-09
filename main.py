@@ -27,7 +27,7 @@ if __name__ == '__main__':
         token_texts = data_preprocessor.process(data_file_path, preprocess_file_path, data_type)
     data_preprocessor.statistical_data(token_texts)
     # Prepare data for modeling
-    dic, corpus = data_analyst.convert_text(token_texts, data_type, no_below_threshold, no_above_threshold)
+    dic, corpus = data_analyst.vectorise(token_texts, data_type, no_below_threshold, no_above_threshold)
     # Statistical token frequency
     data_analyst.statistical_token_freq(dic)
     # Evaluate topic number

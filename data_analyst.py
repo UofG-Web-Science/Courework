@@ -5,11 +5,12 @@ from gensim import corpora, models
 import constant
 
 
-def convert_text(token_texts, data_type, no_below_threshold, no_above_threshold):
+def vectorise(token_texts, data_type, no_below_threshold, no_above_threshold):
     dic = corpora.Dictionary(token_texts)
     # Filter out words with too low frequency or too high frequency
     dic.filter_extremes(no_below=no_below_threshold, no_above=no_above_threshold)
     corpus = [dic.doc2bow(text) for text in token_texts]
+    # Filter out words with low TF-IDF
     match data_type:
         case constant.DataType.single:
             corpus = models.tfidfmodel.TfidfModel(corpus)[corpus]
@@ -41,11 +42,15 @@ def evaluate_topic_num(token_texts, dic, corpus, topic_max_num, iteration_num, c
     perplexity_scores = []
     idxs = range(1, topic_max_num + 1)
     for i in idxs:
+        # Modeling topic
         topic_model = modeling_topic(dic, corpus, i, iteration_num, chunk_size, pass_num)
+        # Calculate coherence
         coherence = statistical_coherence(topic_model, token_texts, dic, corpus, coherence_type)
         coherence_scores.append(coherence)
+        # Calculate perplexity
         perplexity = statistical_perplexity(topic_model, corpus)
         perplexity_scores.append(perplexity)
+        # Visualize topic
         visualize_topic(topic_model, corpus, dic, data_type)
     # Visualize evaluation
     x = idxs

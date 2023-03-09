@@ -25,7 +25,7 @@ stop_word_file_path = "data/stopwordFile.txt"
 #
 topic_max_num = 8
 
-single_param = DataParam(DataType.single, "data/tweets.csv", 10, 0.1, 400, 70, 20, 'u_mass', 3)
+single_param = DataParam(DataType.single, "data/tweets.csv", 10, 0.1, 400, 100, 20, 'c_uci', 3)
 group_param = DataParam(DataType.grouped, "data/groupedTweets.csv", 5, 0.4, 400, 460, 20, 'c_v', 4)
 
-data_param = group_param
+data_param = single_param

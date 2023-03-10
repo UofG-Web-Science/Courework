@@ -22,10 +22,11 @@ class DataType(Enum):
 
 
 stop_word_file_path = "data/stopwordFile.txt"
-#
+
 topic_max_num = 8
 
-single_param = DataParam(DataType.single, "data/tweets.csv", 10, 0.1, 400, 100, 20, 'c_uci', 3)
+topic_distribution_threshold = 0.5
+single_param = DataParam(DataType.single, "data/tweets.csv", 10, 0.1, 400, 100, 20, 'c_uci', 4)
 group_param = DataParam(DataType.grouped, "data/groupedTweets.csv", 5, 0.4, 400, 460, 20, 'c_v', 4)
 
 data_param = single_param

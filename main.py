@@ -31,10 +31,12 @@ if __name__ == '__main__':
     # Statistical token frequency
     data_analyst.statistical_token_freq(dic)
     # Evaluate topic number
-    data_analyst.evaluate_topic_num(token_texts, dic, corpus, topic_max_num, iteration_num, chunk_size, pass_num,
-                                    coherence_type, data_type)
+    # data_analyst.evaluate_topic_num(token_texts, dic, corpus, topic_max_num, iteration_num, chunk_size, pass_num,
+    #                                 coherence_type, data_type)
     # Modeling topic
     topic_num = data_param.topic_num
     topic_model = data_analyst.modeling_topic(dic, corpus, topic_num, iteration_num, chunk_size, pass_num)
     data_analyst.statistical_topic(topic_model, topic_num, 10)
     topic_model.save('model/lda.model')
+    # Evaluate document
+    data_analyst.evaluate_doc(topic_model, dic, token_texts)

@@ -5,6 +5,9 @@ from gensim import corpora, models
 import constant
 
 
+topic_distribution_threshold = constant.topic_distribution_threshold
+
+
 def vectorise(token_texts, data_type, no_below_threshold, no_above_threshold):
     dic = corpora.Dictionary(token_texts)
     # Filter out words with too low frequency or too high frequency
@@ -95,3 +98,20 @@ def statistical_topic(topic_model, topic_num, word_num):
     topics = topic_model.show_topics(num_topics=topic_num, num_words=word_num, formatted=False)
     for topic in topics:
         print(topic)
+
+
+def evaluate_doc(topic_model, dic, token_texts):
+    for token_text in token_texts:
+        bow = topic_model[dic.doc2bow(token_text)]
+        topic_distributions = topic_model[bow]
+        is_good = False
+        topic_num = None
+        for topic_distribution in topic_distributions:
+            if topic_distribution[1] > topic_distribution_threshold:
+                topic_num = topic_distribution[0]
+                is_good = True
+                break
+        if is_good:
+            print("Document with topic Number: ", topic_num, token_text)
+        else:
+            print("Document with not so good topic distribution: ", token_text)
